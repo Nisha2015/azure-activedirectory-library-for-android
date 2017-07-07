@@ -24,6 +24,8 @@
 package com.microsoft.aad.adal;
 
 import android.accounts.AccountManager;
+import android.annotation.TargetApi;
+import android.app.usage.UsageStatsManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,8 +35,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.test.mock.MockContentProvider;
 import android.test.mock.MockContentResolver;
@@ -48,6 +52,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 
 class FileMockContext extends MockContext {
@@ -65,6 +70,10 @@ class FileMockContext extends MockContext {
     private Map<String, Integer> mPermissionMap = new HashMap<String, Integer>();
     
     private boolean mIsConnectionAvailable = true;
+
+    private boolean mIsAppInactive = false;
+
+    private boolean mIsDeviceInIdleMode = false;
     
     private AccountManager mMockedAccountManager = null;
 
@@ -112,7 +121,18 @@ class FileMockContext extends MockContext {
             Mockito.when(mockedNetworkInfo.isConnectedOrConnecting()).thenReturn(mIsConnectionAvailable);
             Mockito.when(mockedConnectivityManager.getActiveNetworkInfo()).thenReturn(mockedNetworkInfo);
             return mockedConnectivityManager;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (name.equalsIgnoreCase(Context.USAGE_STATS_SERVICE)) {
+                UsageStatsManagerWrapper mockUsageStatsManager = new UsageStatsManagerWrapper();
+                Mockito.when(mock(UsageStatsManagerWrapper.class).isAppInactive(anyString())).thenReturn(mIsAppInactive);
+                return mockUsageStatsManager.usageStatsManager;
+            } else if (name.equalsIgnoreCase(Context.POWER_SERVICE)) {
+                PowerManagerWrapper mockPowerManager = new PowerManagerWrapper();
+                Mockito.when(mock(PowerManagerWrapper.class).isDeviceIdleMode()).thenReturn(mIsDeviceInIdleMode);
+                return mockPowerManager.powerManager;
+            }
         }
+        
         return new Object();
     }
 
@@ -174,6 +194,14 @@ class FileMockContext extends MockContext {
         mIsConnectionAvailable = connectionAvailable;
     }
 
+    public void setAppInactive() {
+        mIsAppInactive = true;
+    }
+
+    public void setDeviceInIdleMode() {
+        mIsDeviceInIdleMode = true;
+    }
+
     public void setResolveIntent(boolean resolveIntent) {
         mResolveIntent = resolveIntent;
     }
@@ -225,6 +253,34 @@ class FileMockContext extends MockContext {
             info.packageName = packageName;
             info.versionName = "test";
             return info;
+        }
+    }
+
+    public class UsageStatsManagerWrapper {
+        public final UsageStatsManager usageStatsManager;
+
+        @TargetApi(Build.VERSION_CODES.M)
+        protected UsageStatsManagerWrapper() {
+            this.usageStatsManager = mContext.getSystemService(UsageStatsManager.class);
+        }
+
+        @TargetApi(Build.VERSION_CODES.M)
+        public boolean isAppInactive(String packageName) {
+            return usageStatsManager.isAppInactive(packageName);
+        }
+    }
+
+    public class PowerManagerWrapper {
+        private PowerManager powerManager;
+
+        @TargetApi(Build.VERSION_CODES.M)
+        protected PowerManagerWrapper() {
+            powerManager = mContext.getSystemService(PowerManager.class);
+        }
+
+        @TargetApi(Build.VERSION_CODES.M)
+        public boolean isDeviceIdleMode() {
+            return powerManager.isDeviceIdleMode();
         }
     }
 }

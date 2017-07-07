@@ -22,9 +22,13 @@
 // THE SOFTWARE.
 package com.microsoft.aad.adal;
 
+import android.annotation.TargetApi;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
+import android.os.PowerManager;
 
 /**
  * Default connection service check network connectivity. 
@@ -45,6 +49,27 @@ class DefaultConnectionService implements IConnectionService {
         ConnectivityManager connectivityManager = (ConnectivityManager) mConnectionContext
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting() && !isNetworkDisabledFromOptimizations();
+    }
+
+    /**
+     * Determines if the company portal cannot access the network due to power saving optimizations introduced in API 23.
+     *
+     * @return true if the device is API23 and one or both of the following is true: the device is in doze or the company
+     * portal is in standby, false otherwise.
+     */
+    @TargetApi(Build.VERSION_CODES.M)
+    public boolean isNetworkDisabledFromOptimizations() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (((UsageStatsManager)mConnectionContext.getSystemService(Context.USAGE_STATS_SERVICE)).isAppInactive(mConnectionContext.getPackageName())) {
+                return true;
+            }
+
+            if (((PowerManager)mConnectionContext.getSystemService(Context.POWER_SERVICE)).isDeviceIdleMode()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
