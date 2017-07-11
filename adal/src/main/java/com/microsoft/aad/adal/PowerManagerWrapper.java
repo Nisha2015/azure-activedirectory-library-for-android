@@ -38,7 +38,7 @@ public class PowerManagerWrapper {
      * Singleton implementation for PowerManagerWrapper.
      * @return PowerManagerWrapper singleton instance
      */
-    public static PowerManagerWrapper getInstance() {
+    public static synchronized PowerManagerWrapper getInstance() {
         if (sInstance == null) {
             sInstance = new PowerManagerWrapper();
         }
@@ -46,7 +46,7 @@ public class PowerManagerWrapper {
     }
 
     /**
-     * Wrap the calling to method isDeviceIdleMode() of final class PowerManager. To make it testable.
+     * Wrap the calling to method isDeviceIdleMode() of final class PowerManager.
      * @param connectionContext
      * @return true if the device is in doze mode
      */

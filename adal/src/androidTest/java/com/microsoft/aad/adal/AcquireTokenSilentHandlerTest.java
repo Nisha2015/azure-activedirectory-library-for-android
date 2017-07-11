@@ -107,15 +107,6 @@ public final class AcquireTokenSilentHandlerTest extends AndroidTestCase {
         final AcquireTokenSilentHandler acquireTokenSilentHandler = getAcquireTokenHandler(mockContext,
                 authenticationRequest, mockCache);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            UsageStatsManagerWrapper mockUsageStatsManagerWrapper = mock(UsageStatsManagerWrapper.class);
-            Mockito.when(mockUsageStatsManagerWrapper.isAppInactive(any(Context.class))).thenReturn(true);
-            UsageStatsManagerWrapper.sInstance = mockUsageStatsManagerWrapper;
-            PowerManagerWrapper mockPowerManagerWrapper = mock(PowerManagerWrapper.class);
-            Mockito.when(mockPowerManagerWrapper.isDeviceIdleMode(any(Context.class))).thenReturn(false);
-            PowerManagerWrapper.sInstance = mockPowerManagerWrapper;
-        }
-
         try {
             acquireTokenSilentHandler.acquireTokenWithRefreshToken("refreshToken");
             fail("Expect exception");
@@ -126,7 +117,7 @@ public final class AcquireTokenSilentHandlerTest extends AndroidTestCase {
     }
 
     /**
-     * Acquire token users refresh token, but the client app is inactive.
+     * Acquire token users refresh token, but the device is in doze mode.
      */
     @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)

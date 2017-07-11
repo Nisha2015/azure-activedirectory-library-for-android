@@ -38,7 +38,7 @@ public class UsageStatsManagerWrapper {
      * Singleton implementation for UsageStatsManagerWrapper.
      * @return UsageStatsManagerWrapper singleton instance
      */
-    public static UsageStatsManagerWrapper getInstance() {
+    public static synchronized UsageStatsManagerWrapper getInstance() {
         if (sInstance == null) {
             sInstance = new UsageStatsManagerWrapper();
         }
