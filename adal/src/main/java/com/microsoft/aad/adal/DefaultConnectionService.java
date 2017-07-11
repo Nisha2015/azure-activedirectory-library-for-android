@@ -23,12 +23,10 @@
 package com.microsoft.aad.adal;
 
 import android.annotation.TargetApi;
-import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.PowerManager;
 
 /**
  * Default connection service check network connectivity. 
@@ -61,13 +59,10 @@ class DefaultConnectionService implements IConnectionService {
     @TargetApi(Build.VERSION_CODES.M)
     public boolean isNetworkDisabledFromOptimizations() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (((UsageStatsManager)mConnectionContext.getSystemService(Context.USAGE_STATS_SERVICE)).isAppInactive(mConnectionContext.getPackageName())) {
-                return true;
-            }
-
-            if (((PowerManager)mConnectionContext.getSystemService(Context.POWER_SERVICE)).isDeviceIdleMode()) {
-                return true;
-            }
+            final UsageStatsManagerWrapper usageStatsManagerWrapper = UsageStatsManagerWrapper.getInstance();
+            final PowerManagerWrapper powerManagerWrapper = PowerManagerWrapper.getInstance();
+            return usageStatsManagerWrapper.isAppInactive(mConnectionContext)
+                    || powerManagerWrapper.isDeviceIdleMode(mConnectionContext);
         }
 
         return false;

@@ -174,11 +174,11 @@ class HttpWebRequest {
             if (connectionService.isNetworkDisabledFromOptimizations()) {
                 final AuthenticationException authenticationException = new AuthenticationException(
                         ADALError.NO_NETWORK_CONNECTION_POWER_OPTIMIZATION,
-                        "Connection is not available to refresh token because power optimization is " +
-                                "enabled. And the device is in doze mode or the app is standby"
+                        "Connection is not available to refresh token because power optimization is "
+                                + "enabled. And the device is in doze mode or the app is standby"
                                 + ADALError.NO_NETWORK_CONNECTION_POWER_OPTIMIZATION.getDescription());
-                Logger.w(TAG, "Connection is not available to refresh token because power optimization is " +
-                                "enabled. And the device is in doze mode or the app is standby"
+                Logger.w(TAG, "Connection is not available to refresh token because power optimization is "
+                                + "enabled. And the device is in doze mode or the app is standby"
                                 + ADALError.NO_NETWORK_CONNECTION_POWER_OPTIMIZATION.getDescription(), "",
                         ADALError.NO_NETWORK_CONNECTION_POWER_OPTIMIZATION);
                 throw authenticationException;
