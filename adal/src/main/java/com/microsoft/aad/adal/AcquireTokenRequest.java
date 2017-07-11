@@ -57,7 +57,7 @@ class AcquireTokenRequest {
     private TokenCacheAccessor mTokenCacheAccessor;
     private final IBrokerProxy mBrokerProxy;
 
-    private Handler mHandler = null;
+    private static Handler mHandler = null;
 
     /**
      * Instance validation related calls are serviced inside Discovery as a
@@ -708,7 +708,7 @@ class AcquireTokenRequest {
     private synchronized Handler getHandler() {
         if (mHandler == null) {
             // Use current main looper
-            mHandler = new Handler(mContext.getMainLooper());
+            mHandler = new Handler();
         }
 
         return mHandler;
