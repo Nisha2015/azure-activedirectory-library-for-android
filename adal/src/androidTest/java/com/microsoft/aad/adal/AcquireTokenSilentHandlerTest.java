@@ -25,6 +25,7 @@ package com.microsoft.aad.adal;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.test.filters.SdkSuppress;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -49,6 +50,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import static android.R.attr.minSdkVersion;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
@@ -90,7 +92,8 @@ public final class AcquireTokenSilentHandlerTest extends AndroidTestCase {
     /**
      * Acquire token users refresh token, but the client app is inactive.
      */
-    @TargetApi(Build.VERSION_CODES.M)
+    @SmallTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     public void testRefreshTokenFailedNoNetworkAppIsInactive() {
         FileMockContext mockContext = new FileMockContext(getContext());
         mockContext.setAppInactive();
@@ -125,8 +128,8 @@ public final class AcquireTokenSilentHandlerTest extends AndroidTestCase {
     /**
      * Acquire token users refresh token, but the client app is inactive.
      */
-    @Test
-    @TargetApi(Build.VERSION_CODES.M)
+    @SmallTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     public void testRefreshTokenFailedNoNetworkDeviceIsIdle() {
         FileMockContext mockContext = new FileMockContext(getContext());
         mockContext.setDeviceInIdleMode();
